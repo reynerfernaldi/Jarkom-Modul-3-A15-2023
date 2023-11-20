@@ -386,8 +386,9 @@ server {
 
 -   Result
     ```
-    ab -n 1000 -c 100 http://www.granz.channel.a15.com/ 
+    ab -n 1000 -c 100 http://granz.channel.a15.com/ 
     ```
+    </br><img src="img/7.png?raw=true" alt="Alt text" title="1a" width="400">
 
 ## 8. Karena diminta untuk menuliskan grimoire, buatlah analisis hasil testing dengan 200 request dan 10 request/second masing-masing algoritma Load Balancer dengan ketentuan sebagai berikut:
 
@@ -472,6 +473,16 @@ tidak setinggi Least maupun algoritma lain.
             }
     } ' > /etc/nginx/sites-available/lbphp
     ```
+-   Testing 
+    ```
+    ab -A netics:ajka15 http://granz.channel.a15.com/
+    ```
+    </br><img src="img/10.png?raw=true" alt="Alt text" title="1a" width="400">
+
+    ```
+    lynx -auth=netics:ajka15 http://granz.channel.a15.com/
+    ```
+    </br><img src="img/10b.png?raw=true" alt="Alt text" title="1a" width="400">
 
 ## 11. Lalu buat untuk setiap request yang mengandung /its akan di proxy passing menuju halaman https://www.its.ac.id. hint: (proxy_pass)
 
@@ -503,6 +514,8 @@ tidak setinggi Least maupun algoritma lain.
 
     } ' > /etc/nginx/sites-available/lbphp
     ```
+
+    </br><img src="img/11.png?raw=true" alt="Alt text" title="1a" width="600">
 
 ## 12. Selanjutnya LB ini hanya boleh diakses oleh client dengan IP [Prefix IP].3.69, [Prefix IP].3.70, [Prefix IP].4.167, dan [Prefix IP].4.168. hint: (fixed in dulu clinetnya)
 
@@ -542,6 +555,13 @@ tidak setinggi Least maupun algoritma lain.
 
     } ' > /etc/nginx/sites-available/lbphp
     ```
+-   Result
+    </br><img src="img/12.png?raw=true" alt="Alt text" title="1a" width="600">
+    </br>untuk memangkas waktu menambah 
+allow 192.176.4.24;
+supaya dapat mempercepat pengecekan
+    </br><img src="img/12b.png?raw=true" alt="Alt text" title="1a" width="600">
+
 
 ## 13. Semua data yang diperlukan, diatur pada Denken dan harus dapat diakses oleh Frieren, Flamme, dan Fern.
 -   Menambahkan script
@@ -717,6 +737,8 @@ tidak setinggi Least maupun algoritma lain.
     mariadb --host=192.176.2.2 --port=3306 --user=kelompoka15 --password=passworda15 dbkelompoka15 -e "SHOW DATABASES;"
     ```
 
+    </br><img src="img/10.png?raw=true" alt="Alt text" title="1a" width="500">
+
 ## 14. Frieren, Flamme, dan Fern memiliki Riegel Channel sesuai dengan quest guide berikut. Jangan lupa melakukan instalasi PHP8.0 dan Composer
 
 -   install composser
@@ -834,6 +856,12 @@ tidak setinggi Least maupun algoritma lain.
     }' > /etc/nginx/sites-available/laravelworker
     ```
 
+-   Testing
+    ```
+    lynx localhost:[PORT]
+    ```
+    </br><img src="img/14.png?raw=true" alt="Alt text" title="1a" width="500">
+
 ## 15, 16, 17. Riegel Channel memiliki beberapa endpoint yang harus ditesting sebanyak 100 request dengan 10 request/second. Tambahkan response dan hasil testing pada grimoire. 
 
 ### a.POST /auth/register (15)
@@ -899,8 +927,9 @@ tidak setinggi Least maupun algoritma lain.
     ab -n 100 -c 10 -H "Authorization: Bearer $token" http://192.176.4.4:8001/api/me
 
     ```
+    </br><img src="img/17.png?raw=true" alt="Alt text" title="1a" width="500">
 
-### 18. Untuk memastikan ketiganya bekerja sama secara adil untuk mengatur Riegel Channel maka implementasikan Proxy Bind pada Eisen untuk mengaitkan IP dari Frieren, Flamme, dan Fern.
+## 18. Untuk memastikan ketiganya bekerja sama secara adil untuk mengatur Riegel Channel maka implementasikan Proxy Bind pada Eisen untuk mengaitkan IP dari Frieren, Flamme, dan Fern.
 
 -   Melakukan konfigurasi script
     ```
@@ -924,8 +953,11 @@ tidak setinggi Least maupun algoritma lain.
     ab -n 100 -c 10 -p login.json -T application/json http://riegel.canyon.a15.com/api/auth/login
 
     ```
+-   Result
+    </br><img src="img/18a.png?raw=true" alt="Alt text" title="1a" width="600">
+    </br><img src="img/18b.png?raw=true" alt="Alt text" title="1a" width="600">
 
-### 19. Untuk meningkatkan performa dari Worker, coba implementasikan PHP-FPM pada Frieren, Flamme, dan Fern. Untuk testing kinerja naikkan -pm.max_children -pm.start_servers -pm.min_spare_servers -pm.max_spare_servers sebanyak tiga percobaan dan lakukan testing sebanyak 100 request dengan 10 request/second kemudian berikan hasil analisisnya pada Grimoire.
+## 19. Untuk meningkatkan performa dari Worker, coba implementasikan PHP-FPM pada Frieren, Flamme, dan Fern. Untuk testing kinerja naikkan -pm.max_children -pm.start_servers -pm.min_spare_servers -pm.max_spare_servers sebanyak tiga percobaan dan lakukan testing sebanyak 100 request dengan 10 request/second kemudian berikan hasil analisisnya pada Grimoire.
 
 -   Percobaan pertama
     ```
@@ -949,6 +981,7 @@ tidak setinggi Least maupun algoritma lain.
 
     service php8.0-fpm restart
     ```
+    </br><img src="img/19a.png?raw=true" alt="Alt text" title="1a" width="700">
 
 -   Percobaan kedua
     ```
@@ -972,6 +1005,7 @@ tidak setinggi Least maupun algoritma lain.
 
     service php8.0-fpm restart
     ```
+    </br><img src="img/19b.png?raw=true" alt="Alt text" title="1a" width="700">
 
 -   Percobaan ketiga
     ```
@@ -994,6 +1028,7 @@ tidak setinggi Least maupun algoritma lain.
 
     service php8.0-fpm restart
     ```
+    </br><img src="img/19c.png?raw=true" alt="Alt text" title="1a" width="700">
 
 ## 20. Nampaknya hanya menggunakan PHP-FPM tidak cukup untuk meningkatkan performa dari worker maka implementasikan Least-Conn pada Eisen. Untuk testing kinerja dari worker tersebut dilakukan sebanyak 100 request dengan 10 request/second.
 
@@ -1021,3 +1056,4 @@ tidak setinggi Least maupun algoritma lain.
     ```
     ab -n 100 -c 10 -p login.json -T application/json http://riegel.canyon.a15.com/api/auth/login
     ```
+    </br><img src="img/20.png?raw=true" alt="Alt text" title="1a" width="700">
