@@ -153,6 +153,73 @@
     gateway 192.176.4.1
     ```
 
+-   Melakukan konfigurasi pada DNS Server
+    ```
+    echo 'nameserver 192.168.122.1' > /etc/resolv.conf
+
+    apt-get update
+    apt install bind9 -y
+    echo 'zone "canyon.a15.com" {
+            type master;
+            file "/etc/bind/jarkom/canyon.a15.com";
+    };
+
+    zone "channel.a15.com" {
+            type master;
+            file "/etc/bind/jarkom/channel.a15.com";
+    };
+    ' > /etc/bind/named.conf.local
+
+    mkdir -p /etc/bind/jarkom
+
+    echo ';
+    ; BIND data file for local loopback interface
+    ;
+    $TTL    604800
+    @       IN      SOA     canyon.a15.com. root.canyon.a15.com. (
+                            2022100601      ; Serial
+                            604800         ; Refresh
+                            86400         ; Retry
+                            2419200         ; Expire
+                            604800 )       ; Negative Cache TTL
+    ;modu
+    @       IN      NS      canyon.a15.com.
+    @       IN      A       192.176.1.3 
+    riegel  IN      A       192.176.4.1
+    @       IN      AAAA    ::1
+    ' > /etc/bind/jarkom/canyon.a15.com
+
+    echo ';
+    ; BIND data file for local loopback interface
+    ;
+    $TTL    604800
+    @       IN      SOA     channel.a15.com. root.channel.a15.com. (
+                            2022100601      ; Serial
+                            604800         ; Refresh
+                            86400         ; Retry
+                            2419200         ; Expire
+                            604800 )       ; Negative Cache TTL
+    ;modu
+    @       IN      NS      channel.a15.com.
+    @       IN      A       192.176.1.3 
+    granz  IN      A       192.176.3.1
+    @       IN      AAAA    ::1
+    ' > /etc/bind/jarkom/channel.a15.com
+
+    echo'options {
+            directory "/var/cache/bind";
+
+            forwarders {
+                    192.168.122.1;
+            };
+
+        // dnssec-validation auto;        allow-query{any;};
+            auth-nxdomain no;
+            listen-on-v6 { any; };
+    };' > /etc/bind/named.conf.options
+
+    service bind9 restart
+    ```
 ## 2. Client yang melalui Switch3 mendapatkan range IP dari [prefix IP].3.16 - [prefix IP].3.32 dan [prefix IP].3.64 - [prefix IP].3.80
 
 Melakukan configurasi pada DHCP Server (Himmel)
@@ -215,6 +282,10 @@ subnet 192.176.4.0 netmask 255.255.255.0 {
 }
 ```
 
+Result
+</br><img src="img/4.png?raw=true" alt="Alt text" title="1a" width="400">
+
+
 ## 5. Lama waktu DHCP server meminjamkan alamat IP kepada Client yang melalui Switch3 selama 3 menit sedangkan pada client yang melalui Switch4 selama 12 menit. Dengan waktu maksimal dialokasikan untuk peminjaman alamat IP selama 96 menit
 
 ```
@@ -238,6 +309,11 @@ subnet 192.176.4.0 netmask 255.255.255.0 {
     max-lease-time 5760;
 }
 ```
+
+</br><img src="img/5a.png?raw=true" alt="Alt text" title="1a" width="400">
+</br><img src="img/5b.png?raw=true" alt="Alt text" title="1a" width="400">
+
+
 
 ## 6. Pada masing-masing worker PHP, lakukan konfigurasi virtual host untuk website berikut dengan menggunakan php 7.3.
 
@@ -277,6 +353,11 @@ echo 'server {
 
 service nginx restart
 ```
+-   Result
+    ```
+    lynx localhost
+    ```
+    </br><img src="img/6.png?raw=true" alt="Alt text" title="1a" width="400">
 
 ## 7.Kepala suku dari Bredt Region memberikan resource server sebagai berikut: Lawine, 4GB, 2vCPU, dan 80 GB SSD. Linie, 2GB, 2vCPU, dan 50 GB SSD. Lugner 1GB, 1vCPU, dan 25 GB SSD. aturlah agar Eisen dapat bekerja dengan maksimal, lalu lakukan testing dengan 1000 request dan 100 request/second.
 
@@ -303,6 +384,11 @@ server {
 } ' > /etc/nginx/sites-available/lbphp
 ```
 
+-   Result
+    ```
+    ab -n 1000 -c 100 http://www.granz.channel.a15.com/ 
+    ```
+
 ## 8. Karena diminta untuk menuliskan grimoire, buatlah analisis hasil testing dengan 200 request dan 10 request/second masing-masing algoritma Load Balancer dengan ketentuan sebagai berikut:
 
 ### 8.a. Nama Algoritma Load Balancer
@@ -325,7 +411,7 @@ server {
 ### 8.b. Grafik
 </br><img src="img/8b.png?raw=true" alt="Alt text" title="1a" width="600">
 
-### 8.c. Grafik
+### 8.c. Analisis
 Least connection dapat melakukan handling paling baik namun hal tersebut datang dengan
 konsekuensi CPU, memori yang diperlukan jadi lebih banyak sehingga jika kita ingin
 mendapatkan hasil yang lebih hemat CPU dan memori, Generic Hash dan Run Robin dapat
@@ -761,10 +847,18 @@ tidak setinggi Least maupun algoritma lain.
     }' > register.json
     ```
 
--   result
+-   Result
     ```
     ab -n 100 -c 10 -p register.json -T application/json http://192.176.4.4:8001/api/auth/register
     ```
+-   Response  (jika sudah ada)
+    </br><img src="img/15a1.png?raw=true" alt="Alt text" title="1a" width="700">
+
+-   Response (error credential)
+    </br><img src="img/15a2.png?raw=true" alt="Alt text" title="1a" width="700">
+
+-   Testing (Testing)
+    </br><img src="img/15a3.png?raw=true" alt="Alt text" title="1a" width="700">
 
 ### b.POST /auth/login (16)
 - melakukan konfigurasi
@@ -779,6 +873,15 @@ tidak setinggi Least maupun algoritma lain.
     ```
     ab -n 100 -c 10 -p login.json -T application/json http://192.176.4.4:8001/api/auth/login
     ```
+
+-   Response  (jika ditemukan)
+    </br><img src="img/16a1.png?raw=true" alt="Alt text" title="1a" width="700">
+
+-   Response (jika belum ada)
+    </br><img src="img/16a2.png?raw=true" alt="Alt text" title="1a" width="700">
+
+-   Testing
+    </br><img src="img/16a3.png?raw=true" alt="Alt text" title="1a" width="700">
 
 ### c.GET /me (17)
 -   Mendapatkan token
@@ -917,5 +1020,4 @@ tidak setinggi Least maupun algoritma lain.
 -   Testing
     ```
     ab -n 100 -c 10 -p login.json -T application/json http://riegel.canyon.a15.com/api/auth/login
-
     ```
